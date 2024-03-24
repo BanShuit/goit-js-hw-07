@@ -1,24 +1,42 @@
-import { galleryItems } from './gallery-items.js';
+import { galleryItems } from "./gallery-items.js";
+// Change code below this line
 
-document.addEventListener("DOMContentLoaded", function () {
-    const galleryContainer = document.querySelector('.gallery');
+const gallery = document.querySelector(".gallery");
 
-    galleryItems.forEach(item => {
-        const galleryItem = document.createElement('div');
-        galleryItem.classList.add('gallery__item');
+const galleryArray = galleryItems.map(
+  (item) =>
+    `<li class="gallery__item"><a class="gallery__link" href="${item.original}"><img class="gallery__image" src="${item.preview}" data-source="${item.original}" alt="${item.description}"/></a></li>`
+);
 
-        const link = document.createElement('a');
-        link.classList.add('gallery__link');
-        link.href = item.original;
+gallery.innerHTML = galleryArray.join("");
 
-        const image = document.createElement('img');
-        image.classList.add('gallery__image');
-        image.src = item.preview;
-        image.alt = item.description;
-        image.setAttribute('data-source', item.original);
+gallery.addEventListener("click", (event) => {
+  event.preventDefault();
+  if (event.target.nodeName !== "IMG") {
+    return;
+  }
+  const instance = basicLightbox.create(
+    `
+    <img src=${event.target.dataset.source} width="800" height="600">`,
 
-        link.appendChild(image);
-        galleryItem.appendChild(link);
-        galleryContainer.appendChild(galleryItem);
-    });
+    {
+      onShow: (instance) => {
+        document.addEventListener("keydown", escapeKeyDown);
+      },
+
+      onClose: (instance) => {
+        document.removeEventListener("keydown", escapeKeyDown);
+      },
+    }
+  );
+
+  instance.show();
+
+  function escapeKeyDown(event) {
+    if (event.key === "Escape" && instance) {
+      instance.close();
+    }
+  }
 });
+
+console.log(galleryItems);
